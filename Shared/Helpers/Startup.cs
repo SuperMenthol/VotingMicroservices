@@ -13,13 +13,13 @@ namespace Shared.Helpers
                 classMap.SetIgnoreExtraElements(true);
             });
 
-            BsonClassMap.RegisterClassMap<OptionModel>(classMap =>
+            BsonClassMap.RegisterClassMap<VoteModel>(classMap =>
             {
                 classMap.AutoMap();
                 classMap.SetIgnoreExtraElements(true);
             });
 
-            BsonClassMap.RegisterClassMap<VoteModel>(classMap =>
+            BsonClassMap.RegisterClassMap<VotingResultsModel>(classMap =>
             {
                 classMap.AutoMap();
                 classMap.SetIgnoreExtraElements(true);

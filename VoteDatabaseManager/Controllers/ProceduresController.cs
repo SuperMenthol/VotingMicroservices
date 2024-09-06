@@ -52,7 +52,7 @@ namespace VoteDatabaseManager.Controllers
         public async Task<Dictionary<string, string>> GetVotingProceduresKeys()
         {
             var collection = await databaseOperations.GetCollection<ProcedureModel>(procedureSchemaCollectionName);
-            return (await collection.Find(null)
+            return (await collection.Find(_ => true)
                 .ToListAsync())
                 .ToDictionary(x => x.Name, x => x.RoutingKey);
         }

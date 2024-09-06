@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 
-namespace StatsWorker.Database
+namespace CollectionsCleanupWorker.Database
 {
     public class DatabaseOperations : IDatabaseOperations
     {
@@ -18,12 +18,18 @@ namespace StatsWorker.Database
 
         public async Task<IMongoCollection<T>?> GetCollection<T>(string collectionName)
         {
+            var a = await database.ListCollectionNames().ToListAsync();
             IMongoCollection<T>? result = null;
             if (await CollectionExists(collectionName))
             {
                 result = database.GetCollection<T>(collectionName);
             }
             return result;
+        }
+
+        public async Task DeleteCollection(string collectionName)
+        {
+            await database.DropCollectionAsync(collectionName);
         }
     }
 }

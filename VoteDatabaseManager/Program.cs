@@ -15,14 +15,6 @@ namespace VoteDatabaseManager
             builder.Services.AddSingleton(configuration);
             builder.Services.AddScoped<IDatabaseOperations, DatabaseOperations>();
             builder.Services.AddControllers();
-            IHost host = Host.CreateDefaultBuilder(args)
-                .ConfigureServices(services =>
-                {
-                    services.AddScoped<IDatabaseOperations, DatabaseOperations>();
-                    services.AddSingleton<IConfiguration>(configuration);
-                    services.AddHostedService<RedundantCollectionsCleanupWorker>(); // TODO: nie dzia³a, uruchamia siê tylko raz
-                })
-                .Build();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -43,7 +35,6 @@ namespace VoteDatabaseManager
 
             app.MapControllers();
 
-            host.Run();
             app.Run();
         }
     }

@@ -30,7 +30,6 @@ namespace TestApp
             {
                 if (activeProcedures.ProceduresWithOptions.Any())
                 {
-                    Console.WriteLine($"{activeProcedures.ProceduresWithOptions.Count()} procedures found.");
                     var personIdPrefix = new string(randomizer.Chars('\u0041', '\u005a', 3));
                     var personIdSuffix = new string(randomizer.Chars('\u0030', '\u0039', 6));
                     var procedure = activeProcedures.RandomProcedure;
@@ -39,7 +38,6 @@ namespace TestApp
                         activeProcedures.RandomOption(procedure));
 
                     await restClient.SendVote(procedure.Key, request);
-                    Console.WriteLine($"Sent vote to {procedure.Key}");
                 }
 
                 await Task.Delay(random.Next(0, MaxIntervalMilliseconds), stoppingToken);

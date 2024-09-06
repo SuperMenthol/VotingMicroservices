@@ -2,35 +2,40 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.Models;
-using StatsWorkerWebApp.Database;
+using StatsWorker.Database;
 using System.Text;
 using System.Text.Json;
 
-namespace StatsWorkerWebApp
+namespace StatsWorker
 {
-    public class StatsRequestWorker : BackgroundService
+    public class StatsRequestWorker : BaseStatsWorker, IHostedService
     {
         private readonly ILogger<StatsRequestWorker> logger;
         private readonly IDatabaseOperations databaseOperations;
-        private readonly string ScoringRequestQueueName;
         private readonly string ProcedureCollectionName;
         private readonly string ResultsCollectionName;
 
-        public StatsRequestWorker(ILogger<StatsRequestWorker> logger, IDatabaseOperations databaseOperations, IConfiguration configuration)
+        private readonly string ScoringRequestQueueName;
+        private readonly string QueueName;
+        private readonly string Exchange;
+
+        public StatsRequestWorker(ILogger<StatsRequestWorker> logger, IDatabaseOperations databaseOperations, IConfiguration configuration) : base(databaseOperations, logger)
         {
             this.logger=logger;
             this.databaseOperations=databaseOperations;
             var rabbitMqConfiguration = configuration.GetRequiredSection("RabbitMq");
-            ScoringRequestQueueName=rabbitMqConfiguration[nameof(ScoringRequestQueueName)];
+            ScoringRequestQueueName = rabbitMqConfiguration[nameof(ScoringRequestQueueName)];
+            QueueName = rabbitMqConfiguration[nameof(QueueName)];
+            Exchange = rabbitMqConfiguration[nameof(Exchange)];
 
             var mongoDbConfiguration = configuration.GetRequiredSection("MongoDb");
             ProcedureCollectionName=mongoDbConfiguration[nameof(ProcedureCollectionName)];
             ResultsCollectionName=mongoDbConfiguration[nameof(ResultsCollectionName)];
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var connectionFactory = new ConnectionFactory();
 
@@ -46,8 +51,13 @@ namespace StatsWorkerWebApp
                     autoAck: false,
                     consumer: consumer);
 
-                await Task.Delay(5000, stoppingToken);
+                await Task.Delay(5000, cancellationToken);
             }
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         private EventHandler<BasicDeliverEventArgs> ReceivedAction(IModel channel)
@@ -59,8 +69,6 @@ namespace StatsWorkerWebApp
                     Console.WriteLine($"Received request for results preparation for: {Encoding.UTF8.GetString(ea.Body.ToArray())}");
 
                     var body = JsonSerializer.Deserialize<RemovalRequestModel>(ea.Body.ToArray());
-
-                    var result = new List<VotingResultsModel>();
 
                     var proceduresCollection = await databaseOperations.GetCollection<ProcedureModel>(ProcedureCollectionName);
                     if (proceduresCollection == null)
@@ -92,58 +100,18 @@ namespace StatsWorkerWebApp
                         var updateLatestResults = Builders<ProcedureModel>.Update.Set(x => x.LatestResults, updateResult);
 
                         await proceduresCollection.UpdateOneAsync(routingKeyMatching, updateLatestResults);
+                        await resultsCollection.InsertOneAsync(updateResult);
+
+                        PublishResults(channel, new List<VotingResultsModel> { updateResult }, QueueName, Exchange);
                     }
 
                     channel.BasicAck(ea.DeliveryTag, false);
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    Console.WriteLine(ex.Message);
                 }
             };
-        }
-
-        private async Task<VotingResultsModel?> UpdateResultsFor(ProcedureModel procedure)
-        {
-            VotingResultsModel result = null;
-
-            var collection = await databaseOperations.GetCollection<VoteModel>(procedure.RoutingKey);
-            if (collection == null)
-            {
-                logger.LogError($"Voting collection with key {procedure.RoutingKey} was not found.");
-            }
-
-            var votesCreatedAfterLastResults = Builders<VoteModel>.Filter
-                .AnyGte("CreatedAt", procedure.LatestResults?.CreatedAt ?? new DateTime());
-
-            var votesAfterOrDuringLastResult = await collection.Find(votesCreatedAfterLastResults).ToListAsync();
-            if (votesAfterOrDuringLastResult.Any())
-            {
-                var updatedResultsModel = new VotingResultsModel(DateTime.Now,
-                    procedure.RoutingKey,
-                    RecalculateVotes(procedure.LatestResults?.OptionResults ?? new List<OptionResultModel>(), votesAfterOrDuringLastResult));
-
-                result = updatedResultsModel;
-            }
-
-            return result;
-        }
-
-        private IEnumerable<OptionResultModel> RecalculateVotes(IEnumerable<OptionResultModel> currentOptionResults, IEnumerable<VoteModel> votes)
-        {
-            var newTotal = currentOptionResults.Sum(x => x.Count) + votes.Count();
-
-            var newVoteResults = new List<OptionResultModel>();
-            var grouping = votes.GroupBy(x => x.OptionId).ToList();
-
-            foreach (var group in grouping)
-            {
-                var currentOptionResult = currentOptionResults.First(x => x.OptionId == group.Key);
-                var sum = currentOptionResult.Count + group.Count();
-                newVoteResults.Add(new(group.Key, currentOptionResult.Name, sum, (decimal)sum/(decimal)newTotal));
-            }
-
-            return newVoteResults;
         }
     }
 }

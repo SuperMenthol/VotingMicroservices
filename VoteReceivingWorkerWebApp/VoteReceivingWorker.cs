@@ -4,9 +4,9 @@ using Shared.Helpers;
 using Shared.Models;
 using System.Text;
 using System.Text.Json;
-using VoteReceivingWorkerWebApp.Database;
+using VoteReceivingWorker.Database;
 
-namespace VoteReceivingWorkerWebApp
+namespace VoteReceivingWorker
 {
     public class VoteReceivingWorker : BackgroundService
     {

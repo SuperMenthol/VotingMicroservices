@@ -1,6 +1,7 @@
-using StatsWorkerWebApp.Database;
+using Shared.Helpers;
+using StatsWorker.Database;
 
-namespace StatsWorkerWebApp
+namespace StatsWorker
 {
     public class Program
     {
@@ -8,6 +9,7 @@ namespace StatsWorkerWebApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            Startup.RegisterBsonClassMaps();
             IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             IHost host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>

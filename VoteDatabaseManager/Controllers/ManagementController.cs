@@ -139,7 +139,7 @@ namespace VoteDatabaseManager.Controllers
             var body = JsonSerializer.SerializeToUtf8Bytes(new RemovalRequestModel(routingKey));
             channel.BasicPublish(
                 exchange: Exchange,
-                routingKey: null,
+                routingKey: ScoringRequestQueueName,
                 basicProperties: null,
                 body: body);
         }

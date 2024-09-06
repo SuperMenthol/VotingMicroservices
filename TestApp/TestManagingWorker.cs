@@ -57,7 +57,7 @@ namespace TestApp
                 var description = randomizer.Words(5);
                 var options = new List<OptionModel>();
 
-                for (int i = 0; i < random.Next(1, 8); i++)
+                for (int i = 0; i < random.Next(2, 8); i++)
                 {
                     options.Add(new(i + 1, randomizer.Word()));
                 }
@@ -67,8 +67,7 @@ namespace TestApp
                     suggestedName.ToLower(),
                     description,
                     true,
-                    options,
-                    new VotingResultsModel(DateTime.Now, suggestedName.ToLower(), new List<OptionResultModel>())));
+                    options));
 
                 await restClient.AddProcedure(request);
                 Console.WriteLine($"Added procedure {suggestedName.ToLower()}.");
@@ -89,7 +88,7 @@ namespace TestApp
             await restClient.RemoveProcedure(procedureToRemove.Key);
             activeProcedures.ProceduresWithOptions.Remove(procedureToRemove);
 
-            Console.WriteLine("Removed procedure.");
+            Console.WriteLine("Procedure removal scheduled.");
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Shared.Models;
 
-namespace VoteReceivingWorkerWebApp.Database
+namespace VoteReceivingWorker.Database
 {
     public interface IDatabaseOperations
     {

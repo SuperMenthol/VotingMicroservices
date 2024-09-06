@@ -1,9 +1,12 @@
-namespace ResultsReceiverWorkerWebApp
+using Shared.Helpers;
+
+namespace ResultsReceiverWorker
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            Startup.RegisterBsonClassMaps();
             var builder = WebApplication.CreateBuilder(args);
 
             IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();

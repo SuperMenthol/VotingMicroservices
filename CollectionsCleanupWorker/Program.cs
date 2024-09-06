@@ -1,7 +1,7 @@
+using CollectionsCleanupWorker.Database;
 using Shared.Helpers;
-using VoteReceivingWorker.Database;
 
-namespace VoteReceivingWorker
+namespace CollectionsCleanupWorker
 {
     public class Program
     {
@@ -16,19 +16,11 @@ namespace VoteReceivingWorker
                 {
                     services.AddSingleton<IConfiguration>(configuration);
                     services.AddScoped<IDatabaseOperations, DatabaseOperations>();
-                    services.AddHostedService(WorkerFactory());
+                    services.AddHostedService<CollectionsCleanupWorker>();
                 })
                 .Build();
 
             host.Run();
-        }
-
-        private static Func<IServiceProvider, VoteReceivingWorker> WorkerFactory()
-        {
-            return (sp) => new VoteReceivingWorker(
-                sp.GetRequiredService<ILogger<VoteReceivingWorker>>(),
-                sp.GetRequiredService<IDatabaseOperations>(),
-                sp.GetRequiredService<IConfiguration>().GetRequiredSection("RabbitMq"));
         }
     }
 }

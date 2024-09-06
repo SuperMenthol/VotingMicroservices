@@ -9,15 +9,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{D46AB0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{E1D56C51-7B25-4FBE-A2E5-A8FC0E0C2064}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoteReceivingWorkerWebApp", "VoteReceivingWorkerWebApp\VoteReceivingWorkerWebApp.csproj", "{DC504CE4-73D7-413C-B2AA-E6107DE74C49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoteReceivingWorker", "VoteReceivingWorkerWebApp\VoteReceivingWorker.csproj", "{DC504CE4-73D7-413C-B2AA-E6107DE74C49}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoteDatabaseManager", "VoteDatabaseManager\VoteDatabaseManager.csproj", "{10A9EC2F-B55D-4C05-8B37-C2C9E7F29936}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResultsReceiverWorkerWebApp", "ResultsReceiverWorkerWebApp\ResultsReceiverWorkerWebApp.csproj", "{BA03F97B-9943-4256-81BA-8D561EF3413E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResultsReceiverWorker", "ResultsReceiverWorkerWebApp\ResultsReceiverWorker.csproj", "{BA03F97B-9943-4256-81BA-8D561EF3413E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{6D018BFC-9E58-48F2-B5D6-81C354B14C18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{6D018BFC-9E58-48F2-B5D6-81C354B14C18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsWorkerWebApp", "StatsWorkerWebApp\StatsWorkerWebApp.csproj", "{201BB3DE-4B2F-489E-A5DA-C24AAD767EDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatsWorker", "StatsWorkerWebApp\StatsWorker.csproj", "{201BB3DE-4B2F-489E-A5DA-C24AAD767EDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workers", "Workers", "{C825B91F-D8FE-49E8-8E34-84D60839811A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionsCleanupWorker", "CollectionsCleanupWorker\CollectionsCleanupWorker.csproj", "{810231E9-BD31-42DD-83D3-EDED6A59CED7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,12 +57,20 @@ Global
 		{201BB3DE-4B2F-489E-A5DA-C24AAD767EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{201BB3DE-4B2F-489E-A5DA-C24AAD767EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{201BB3DE-4B2F-489E-A5DA-C24AAD767EDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{810231E9-BD31-42DD-83D3-EDED6A59CED7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{810231E9-BD31-42DD-83D3-EDED6A59CED7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{810231E9-BD31-42DD-83D3-EDED6A59CED7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{810231E9-BD31-42DD-83D3-EDED6A59CED7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E1D56C51-7B25-4FBE-A2E5-A8FC0E0C2064} = {D46AB020-1E4D-4F16-9B70-EF2A14E8B8DF}
+		{DC504CE4-73D7-413C-B2AA-E6107DE74C49} = {C825B91F-D8FE-49E8-8E34-84D60839811A}
+		{BA03F97B-9943-4256-81BA-8D561EF3413E} = {C825B91F-D8FE-49E8-8E34-84D60839811A}
+		{201BB3DE-4B2F-489E-A5DA-C24AAD767EDA} = {C825B91F-D8FE-49E8-8E34-84D60839811A}
+		{810231E9-BD31-42DD-83D3-EDED6A59CED7} = {C825B91F-D8FE-49E8-8E34-84D60839811A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {39BAAFD7-7630-4614-82B2-7E2D5F947325}

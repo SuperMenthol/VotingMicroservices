@@ -3,7 +3,7 @@ using RabbitMQ.Client.Events;
 using Shared.Helpers;
 using System.Text;
 
-namespace ResultsReceiverWorkerWebApp
+namespace ResultsReceiverWorker
 {
     public class ResultsReceivingWorker : BackgroundService
     {
