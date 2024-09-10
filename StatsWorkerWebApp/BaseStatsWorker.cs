@@ -21,7 +21,7 @@ namespace StatsWorker
 
         protected async Task<VotingResultsModel?> UpdateResultsFor(ProcedureModel procedure)
         {
-            VotingResultsModel result = null;
+            VotingResultsModel? result = null;
 
             var collection = await databaseOperations.GetCollection<VoteModel>(procedure.RoutingKey);
             if (collection == null)

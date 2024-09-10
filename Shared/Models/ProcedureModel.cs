@@ -9,8 +9,6 @@
         public IEnumerable<OptionModel> Options { get; set; }
         public VotingResultsModel LatestResults { get; set; }
 
-        public ProcedureModel() { }
-
         public ProcedureModel(string name, string routingKey, string description, bool isActive, IEnumerable<OptionModel> options)
         {
             Name=name;

@@ -184,7 +184,7 @@ namespace StatsWorker
                         throw new InvalidDataException("Results collection not found. Exiting worker");
                     }
 
-                    var byRoutingKey = Builders<ProcedureModel>.Filter.Eq("RoutingKey", body.routingKey);
+                    var byRoutingKey = Builders<ProcedureModel>.Filter.Eq("RoutingKey", body!.routingKey);
                     var procedure = (await proceduresCollection.Find(byRoutingKey).SingleAsync());
 
                     var collection = await databaseOperations.GetCollection<VoteModel>(procedure.RoutingKey);
