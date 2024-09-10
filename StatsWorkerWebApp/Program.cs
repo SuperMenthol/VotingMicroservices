@@ -16,22 +16,7 @@ namespace StatsWorker
                 {
                     services.AddSingleton<IConfiguration>(configuration);
                     services.AddScoped<IDatabaseOperations, DatabaseOperations>();
-                    //services.AddHostedService<StatsWorker>();
-                    //services.AddHostedService<StatsRequestWorker>();
-                    services.AddSingleton<IHostedService, StatsWorker>(provider =>
-                    {
-                        return new StatsWorker(
-                            provider.GetRequiredService<ILogger<StatsWorker>>(),
-                            provider.GetRequiredService<IDatabaseOperations>(),
-                            provider.GetRequiredService<IConfiguration>());
-                    });
-                    services.AddSingleton<IHostedService, StatsRequestWorker>(provider =>
-                    {
-                        return new StatsRequestWorker(
-                            provider.GetRequiredService<ILogger<StatsRequestWorker>>(),
-                            provider.GetRequiredService<IDatabaseOperations>(),
-                            provider.GetRequiredService<IConfiguration>());
-                    });
+                    services.AddHostedService<StatsWorker>();
                 })
                 .Build();
 
