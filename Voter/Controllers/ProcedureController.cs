@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using RestEase;
-using Shared;
 using Shared.Models;
 using Voter.Abstractions;
 
@@ -12,20 +11,16 @@ namespace Voter.Controllers
     {
         private readonly IManagerAPI restClient;
         private readonly ILogger<ProcedureController> _logger;
-        private readonly ISender sender;
 
-        public ProcedureController(ILogger<ProcedureController> logger, ISender sender, IConfiguration configuration)
+        public ProcedureController(ILogger<ProcedureController> logger, IConfiguration configuration)
         {
             _logger = logger;
-            this.sender = sender;
             restClient = RestClient.For<IManagerAPI>(configuration["VoteDatabaseManagerUrl"]);
         }
 
         [HttpGet("active-procedures")]
         public async Task<Dictionary<string, string>> GetActiveProcedures()
-        {
-            return await restClient.GetActiveProcedures();
-        }
+            => await restClient.GetActiveProcedures();
 
         [HttpGet("options")]
         public async Task<List<OptionModel>> GetProcedureOptions([FromQuery] string routingKey)

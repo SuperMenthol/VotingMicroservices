@@ -1,6 +1,5 @@
 ﻿using MongoDB.Driver;
 using RabbitMQ.Client;
-using Shared.Helpers;
 using Shared.Models;
 using StatsWorker.Database;
 
@@ -33,38 +32,46 @@ namespace StatsWorker
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            TaskAwaiter.Wait(60);
+            //TaskAwaiter.Wait(10); // uncomment when using TestApp
             var connectionFactory = new ConnectionFactory();
 
-            while (!cancellationToken.IsCancellationRequested)
+            logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            Console.WriteLine($"Worker running at: {DateTimeOffset.Now}");
+
+            var connection = connectionFactory.CreateConnection();
+            var channel = connection.CreateModel();
+
+            try
             {
-                logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                Console.WriteLine($"Worker running at: {DateTimeOffset.Now}");
-
-                var connection = connectionFactory.CreateConnection();
-                var channel = connection.CreateModel();
-
-                try
-                {
-                    var statistics = await UpdateStatistics();
-                    logger.LogInformation($"Updated {statistics.Count()} results in the database.");
-                    Console.WriteLine($"Updated {statistics.Count()} results in the database.");
-                    PublishResults(channel, statistics, QueueName, Exchange);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex.Message);
-                }
+                await UpdateFromDatabase(channel);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+            }
+            finally
+            {
                 logger.LogInformation("Worker finished at: {time}", DateTimeOffset.Now);
                 Console.WriteLine($"Worker finished at: {DateTimeOffset.Now}");
-                await Task.Delay(5000, cancellationToken);
-                //await Task.Delay(60000 * 15, cancellationToken);
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    await Task.Delay(5000, cancellationToken);
+                    //await Task.Delay(60000 * 15, cancellationToken);
+                }
             }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
+        }
+
+        private async Task UpdateFromDatabase(IModel channel)
+        {
+            var statistics = await UpdateStatistics();
+            logger.LogInformation($"Updated {statistics.Count()} results in the database.");
+            Console.WriteLine($"Updated {statistics.Count()} results in the database.");
+            PublishResults(channel, statistics, QueueName, Exchange);
         }
 
         private async Task<List<VotingResultsModel>> UpdateStatistics()

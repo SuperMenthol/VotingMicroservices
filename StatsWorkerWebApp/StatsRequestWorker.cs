@@ -15,6 +15,7 @@ namespace StatsWorker
         private readonly string ProcedureCollectionName;
         private readonly string ResultsCollectionName;
 
+        private readonly string ScoringRequestExchange;
         private readonly string ScoringRequestQueueName;
         private readonly string QueueName;
         private readonly string Exchange;
@@ -24,6 +25,7 @@ namespace StatsWorker
             this.logger=logger;
             this.databaseOperations=databaseOperations;
             var rabbitMqConfiguration = configuration.GetRequiredSection("RabbitMq");
+            ScoringRequestExchange = rabbitMqConfiguration[nameof(ScoringRequestExchange)];
             ScoringRequestQueueName = rabbitMqConfiguration[nameof(ScoringRequestQueueName)];
             QueueName = rabbitMqConfiguration[nameof(QueueName)];
             Exchange = rabbitMqConfiguration[nameof(Exchange)];
@@ -35,14 +37,26 @@ namespace StatsWorker
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            //TaskAwaiter.Wait(10); // uncomment when using TestApp
+            try
             {
                 var connectionFactory = new ConnectionFactory();
 
                 var connection = connectionFactory.CreateConnection();
                 var channel = connection.CreateModel();
 
-                channel.QueueDeclare(ScoringRequestQueueName, true, false, false);
+                channel.QueueDeclare(
+                    ScoringRequestQueueName,
+                    true,
+                    false,
+                    false,
+                    arguments: new Dictionary<string, object> { { "x-message-ttl", 43200000 }, { "x-single-active-consumer", true } });
+
+                channel.QueueBind(
+                    queue: ScoringRequestQueueName,
+                    exchange: ScoringRequestExchange,
+                    routingKey: ScoringRequestQueueName,
+                    arguments: new Dictionary<string, object> { { "x-message-ttl", 43200000 }, { "x-single-active-consumer", true } });
                 var consumer = new EventingBasicConsumer(channel);
                 consumer.Received += ReceivedAction(channel);
 
@@ -50,14 +64,23 @@ namespace StatsWorker
                     queue: ScoringRequestQueueName,
                     autoAck: false,
                     consumer: consumer);
-
-                await Task.Delay(5000, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+            }
+            finally
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    await Task.Delay(5000, cancellationToken);
+                }
             }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         private EventHandler<BasicDeliverEventArgs> ReceivedAction(IModel channel)
@@ -102,7 +125,7 @@ namespace StatsWorker
                         await proceduresCollection.UpdateOneAsync(routingKeyMatching, updateLatestResults);
                         await resultsCollection.InsertOneAsync(updateResult);
 
-                        PublishResults(channel, new List<VotingResultsModel> { updateResult }, QueueName, Exchange);
+                        PublishResults(channel, new List<VotingResultsModel> { updateResult }, QueueName, ScoringRequestExchange);
                     }
 
                     channel.BasicAck(ea.DeliveryTag, false);

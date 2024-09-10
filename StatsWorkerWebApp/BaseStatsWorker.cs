@@ -11,6 +11,8 @@ namespace StatsWorker
         private readonly IDatabaseOperations databaseOperations;
         private readonly ILogger logger;
 
+        private const string messageRoutingKeyPrefix = "results.";
+
         public BaseStatsWorker(IDatabaseOperations databaseOperations, ILogger logger)
         {
             this.databaseOperations = databaseOperations;
@@ -63,12 +65,12 @@ namespace StatsWorker
 
         protected void PublishResults(IModel channel, List<VotingResultsModel> newResults, string queueName, string exchange)
         {
-            channel.QueueDeclare(queueName, true, false, false, new Dictionary<string, object> { { "x-message-ttl", 43200000 } });
+            channel.QueueDeclare(queueName, true, false, false, new Dictionary<string, object> { { "x-queue-type", "stream" }, { "x-max-age", "1D" } });
             foreach (var result in newResults)
             {
                 channel.BasicPublish(
                     exchange: exchange,
-                    routingKey: result.ProcedureKey,
+                    routingKey: messageRoutingKeyPrefix + result.ProcedureKey,
                     body: JsonSerializer.SerializeToUtf8Bytes(result),
                     basicProperties: null);
             }

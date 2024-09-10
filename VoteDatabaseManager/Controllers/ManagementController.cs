@@ -50,7 +50,6 @@ namespace VoteDatabaseManager.Controllers
                         Builders<ProcedureModel>.Filter.Eq("Name", request.Model.Name)),
                     Builders<ProcedureModel>.Filter.Eq("IsActive", true));
 
-                var c = collection.Find(proceduresWithSameNameOrRoutingKey);
                 if ((await collection.Find(proceduresWithSameNameOrRoutingKey).ToListAsync()).Any())
                 {
                     throw new InvalidOperationException("This name and/or routing key is already in use for an active voting procedure.");
@@ -112,7 +111,7 @@ namespace VoteDatabaseManager.Controllers
             using var connection = connectionFactory.CreateConnection();
             using var channel = connection.CreateModel();
 
-            channel.QueueBind(QueueName, Exchange, routingKey); // TODO: nie dzia³a, rzuca NullReferenceException
+            channel.QueueBind(QueueName, Exchange, routingKey);
         }
 
         private void RemoveRabbitBinding(string routingKey)

@@ -1,6 +1,5 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Shared.Helpers;
 using Shared.Models;
 using System.Text;
 using System.Text.Json;
@@ -24,7 +23,7 @@ namespace VoteReceivingWorker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            TaskAwaiter.Wait(5);
+            //TaskAwaiter.Wait(5); // uncomment when using TestApp
 
             var connectionFactory = new ConnectionFactory();
             while (!stoppingToken.IsCancellationRequested)
@@ -32,7 +31,7 @@ namespace VoteReceivingWorker
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
                 StartConsuming(connectionFactory);
-                await Task.Delay(60000, stoppingToken);
+                await Task.Delay(5000, stoppingToken);
             }
         }
 
