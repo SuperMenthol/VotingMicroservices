@@ -1,6 +1,5 @@
 ﻿using CollectionsCleanupWorker.Database;
 using MongoDB.Driver;
-using Shared.Helpers;
 using Shared.Models;
 
 namespace CollectionsCleanupWorker
@@ -23,7 +22,7 @@ namespace CollectionsCleanupWorker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            TaskAwaiter.Wait(30); // uncomment when using TestApp
+            //TaskAwaiter.Wait(30); // uncomment when using TestApp
 
             while (!stoppingToken.IsCancellationRequested)
             {
